@@ -1,2 +1,2 @@
-# Catero
-기능대회 준비를 위한 new 슈팅게임
+# :smirk_cat: Catero
+**기능대회 준비를 위한 new 슈팅게임**
