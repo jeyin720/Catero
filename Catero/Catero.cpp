@@ -6,6 +6,9 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 
+#pragma comment(lib,"d3d9.lib")
+#pragma comment(lib,"d3dx9.lib")
+
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -18,6 +21,14 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int,HWND&);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
+LPDIRECT3D9 g_pD3D;
+LPDIRECT3DDEVICE9 g_pD3DDevice;
+D3DCOLOR g_ClearColor = D3DCOLOR_XRGB(0, 102, 153);
+
+void Render();
+bool InitDirect3D(HWND hWnd);
+void ReleaseDirect3D();
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -43,6 +54,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
+	InitDirect3D(hWnd);
+
     MSG msg;
 	ZeroMemory(&msg, sizeof(msg));
 
@@ -55,14 +68,59 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             DispatchMessage(&msg);
         }
 		else {
-
+			Render();
 		}
     }
+
+	ReleaseDirect3D();
 
     return (int) msg.wParam;
 }
 
+void Render() {
+	if (g_pD3DDevice == NULL)
+		return;
+	g_pD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET, g_ClearColor, 1.0f, 0);
 
+	g_pD3DDevice->Present(NULL, NULL, NULL, NULL);
+}
+
+bool InitDirect3D(HWND hWnd) {
+	g_pD3D = Direct3DCreate9(D3D_SDK_VERSION);
+
+	if (g_pD3D == NULL)
+		return false;
+
+	D3DPRESENT_PARAMETERS d3dpp;
+	ZeroMemory(&d3dpp, sizeof(d3dpp));
+
+	d3dpp.Windowed = TRUE;
+	d3dpp.hDeviceWindow = hWnd;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.BackBufferCount = 1;
+	d3dpp.BackBufferWidth = 480;
+	d3dpp.BackBufferHeight = 640;
+
+	if (g_pD3D->CreateDevice(D3DADAPTER_DEFAULT
+		, D3DDEVTYPE_HAL
+		, hWnd
+		, D3DCREATE_HARDWARE_VERTEXPROCESSING
+		, &d3dpp
+		, &g_pD3DDevice) == E_FAIL)
+		return false;
+
+	//return True;?
+}
+void ReleaseDirect3D() {
+	if (g_pD3DDevice != NULL)
+		g_pD3DDevice->Release();
+	if (g_pD3D != NULL) {
+		g_pD3D->Release();
+	}
+
+	g_pD3DDevice = NULL;
+	g_pD3D = NULL;
+}
 
 //
 //  함수: MyRegisterClass()
@@ -105,7 +163,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow,HWND& hWnd)
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
    hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      0, 0, 640, 480, nullptr, nullptr, hInstance, nullptr);
+      0, 0, 480, 640, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
    {
