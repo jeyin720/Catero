@@ -1,12 +1,14 @@
 #include "stdafx.h"
-#include "CGameObject.h"
-
 #include <d3d9.h>
 #include <d3dx9.h>
 
 #include "CEntity.h"
 #include "CSprite.h"
 #include "CTexture.h"
+
+#include "CGameObject.h"
+
+
 
 CGameObject::CGameObject() :m_pSpr(NULL), m_pTex(NULL), m_pEntity(NULL), m_bAlive(false)
 {

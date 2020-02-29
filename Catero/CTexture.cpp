@@ -1,8 +1,10 @@
 #include "stdafx.h"
-#include "CTexture.h"
-
 #include <d3d9.h>
 #include <d3dx9.h>
+
+#include "CTexture.h"
+
+
 
 map<wstring, LPDIRECT3DTEXTURE9> CTexture::s_TexturePool;
 
