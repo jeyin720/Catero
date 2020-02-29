@@ -5,13 +5,18 @@
 #include "Catero.h"
 #include <d3d9.h>
 #include <d3dx9.h>
+#include <memory>
 
 #include "CSprite.h"
+#include "CTexture.h"
+#include "CEntity.h"
+#include "CGameObject.h"
 
 #pragma comment(lib,"d3d9.lib")
 #pragma comment(lib,"d3dx9.lib")
 
 #define MAX_LOADSTRING 100
+
 
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
@@ -28,7 +33,7 @@ LPDIRECT3D9 g_pD3D;
 LPDIRECT3DDEVICE9 g_pD3DDevice;
 D3DCOLOR g_ClearColor = D3DCOLOR_XRGB(0, 102, 153);
 
-void Render();
+void Render(shared_ptr<CGameObject> player);
 bool InitDirect3D(HWND hWnd);
 void ReleaseDirect3D();
 
@@ -58,6 +63,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	InitDirect3D(hWnd);
 
+	shared_ptr<CGameObject> g_Player = shared_ptr<CGameObject>(new CGameObject(g_pD3DDevice, _T("cat.bmp")
+		, { 320.f,420.f,0.f }));
+
+	g_Player->SetSpeed(200.f);
+	g_Player->SetAlive(true);
+
     MSG msg;
 	ZeroMemory(&msg, sizeof(msg));
 
@@ -70,7 +81,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             DispatchMessage(&msg);
         }
 		else {
-			Render();
+			Render(g_Player);
 		}
     }
 
@@ -79,11 +90,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     return (int) msg.wParam;
 }
 
-void Render() {
+void Render(shared_ptr<CGameObject> player) {
 	if (g_pD3DDevice == NULL)
 		return;
 	g_pD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET, g_ClearColor, 1.0f, 0);
 
+	if (SUCCEEDED(g_pD3DDevice->BeginScene()))
+	{
+		player->Draw();
+
+		g_pD3DDevice->EndScene();
+	}
 	g_pD3DDevice->Present(NULL, NULL, NULL, NULL);
 }
 
